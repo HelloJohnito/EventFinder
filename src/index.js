@@ -1,6 +1,10 @@
 "use strict";
 var Alexa = require('alexa-sdk');
 var axios = require('axios');
+var accountSid = "";
+var authToken = "";
+
+var client = require('twilio')(accountSid, authToken);
 
 var APP_ID = "";
 var speechOutput;
@@ -31,6 +35,9 @@ var handlers = {
         handlers.state[numId] = el.name.text;
         numId += 1;
       });
+
+
+      console.log(`This is the retreived events: ${tenEventTitles}`);
 
       var introOutput = `Here are the first five events from ${title} at ${city}: `;
       speechOutput = tenEventTitles.join(", ").replace(/&/g, "and");
