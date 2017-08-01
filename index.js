@@ -1,8 +1,8 @@
 "use strict";
 var Alexa = require('alexa-sdk');
 var axios = require('axios');
-// var accountSid = "";
-// var authToken = "";
+var accountSid = `${process.env['accountSid']}`;
+var authToken = `${process.env['authToken']}`;
 
 // var client = require('twilio')(accountSid, authToken);
 
@@ -53,7 +53,7 @@ var handlers = {
   getEvent: function(title, city){
     return axios({
       method: 'get',
-      url:"https://www.eventbriteapi.com/v3/events/search/?token=FL7XRX7KTFAZN3TLOMLO",
+      url:`https://www.eventbriteapi.com/v3/events/search/?token=${process.env['eventbriteAPI']}`,
       params: {
         q: title,
         "location.address": city
@@ -74,7 +74,7 @@ var handlers = {
   'SendTextIntent': function(){
     if(state['selected']){
       var eventUrl = state[state['selected']].url;
-      
+
       this.emit(':tell', 'The link had been sent to your phone.');
     } else {
       this.emit('ask', 'which event number did you select? Please select again.');
