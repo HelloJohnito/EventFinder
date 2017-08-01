@@ -66,13 +66,19 @@ var handlers = {
     if(number > 5 || number < 1){
       this.emit(':ask', "choose a number between 1 and 5. What would you like to choose?");
     } else {
-      console.log(state);
-      this.emit(':tell', `You have chosen ${state[number].text}. Do you want me to send you a link to the event to your phone? If yes, say send me a text.`);
+      state['selected'] = number;
+      this.emit(':tell', `You have chosen ${state[number].text}. Do you want me to send you a link to your phone? If yes, say send me a text.`);
     }
   },
 
   'SendTextIntent': function(){
-    this.emit(':tell', 'The link had been sent to your phone.');
+    if(state['selected']){
+      var eventUrl = state[state['selected']].url;
+      
+      this.emit(':tell', 'The link had been sent to your phone.');
+    } else {
+      this.emit('ask', 'which event number did you select? Please select again.');
+    }
   },
 
   'AMAZON.HelpIntent': function () {
