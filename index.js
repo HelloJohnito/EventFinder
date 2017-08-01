@@ -4,7 +4,7 @@ var axios = require('axios');
 var accountSid = `${process.env['accountSid']}`;
 var authToken = `${process.env['authToken']}`;
 
-// var client = require('twilio')(accountSid, authToken);
+var client = require('twilio')(accountSid, authToken);
 
 var APP_ID = "";
 var speechOutput;
@@ -35,7 +35,7 @@ var handlers = {
       var numId = 1;
       tenData.forEach(function(el){
         tenEventTitles.push(`${numId}: ${el.name.text}`);
-        state[numId] = {text: el.name.text, url: el.url};
+        state[numId] = {title: el.name.text, url: el.url};
         numId += 1;
       });
 
@@ -67,17 +67,33 @@ var handlers = {
       this.emit(':ask', "choose a number between 1 and 5. What would you like to choose?");
     } else {
       state['selected'] = number;
-      this.emit(':tell', `You have chosen ${state[number].text}. Do you want me to send you a link to your phone? If yes, say send me a text.`);
+      this.emit(':ask', `You have chosen ${state[number].title}. Do you want me to send you a link to your phone? If yes, say send me a text. If no, say cancel.`);
     }
   },
 
   'SendTextIntent': function(){
     if(state['selected']){
+      var eventName = state[state['selected']].title;
       var eventUrl = state[state['selected']].url;
+      var self = this;
 
-      this.emit(':tell', 'The link had been sent to your phone.');
+      client.messages.create({
+        to: `${process.env['toPhoneNumber']}`,
+        from: `${process.env['fromPhoneNumber']}`,
+        body: `Hi John, here is the url for ${eventName}: ${eventUrl}`
+      }, function(err, message){
+        if(err){
+          console.log(err);
+          self.emit(':tell', 'There was an error... Please try again');
+        }
+        else {
+          console.log(message.sid);
+          self.emit(':tell', 'The link had been sent to your phone.');
+        }
+      });
+
     } else {
-      this.emit('ask', 'which event number did you select? Please select again.');
+      self.emit('ask', 'which event number did you select? Please select again.');
     }
   },
 
